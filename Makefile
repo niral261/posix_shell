@@ -8,10 +8,10 @@ SRC_DIRS := ./src
 
 # Compiler Settings
 CXX = g++
-CFLAGS = -Wall -Wextra -g 
+CXXLAGS = -Wall -Wextra -g 
 
 # Find all .cpp files under src
-SRCS := $(shell find $(SRC_DIR) -name '*.cpp')
+SRCS := $(shell find $(SRC_DIRS) -name '*.cpp')
 
 # Prepare BUILD_DIR and appends .o to every src
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)

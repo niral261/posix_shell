@@ -13,6 +13,8 @@
 
 
 extern char shell_directory_path[PATH_MAX];
+extern char cmd_hist[20][1024];
+extern int hist_cnt;
 
 static char last_dir[PATH_MAX] = "";
 
@@ -47,7 +49,7 @@ void manage_cd(struct Command *cmd) {
     const char* target = NULL;
 
     // Part 1: 'cd-' --- prev directory
-    if(strcmp(cmd->args[1], "~")==0 || cmd->arg_count==1) {
+    if(cmd->arg_count==1 || strcmp(cmd->args[1], "~") == 0) {
         target = shell_directory_path;
     } else if(strcmp(cmd->args[1], "-")==0) {
         if(strlen(last_dir)==0) {
@@ -65,6 +67,20 @@ void manage_cd(struct Command *cmd) {
     } else {
         strncpy(last_dir, curr_cwd, sizeof(last_dir));
     }
+}
+
+void manage_history(struct Command *cmd) {
+    int limit = 10;
+
+    if(cmd->arg_count > 1)  limit = atoi(cmd->args[1]);
+
+    if(limit > 20) limit = 20;
+
+    int start_offset = hist_cnt - limit;
+    if(start_offset < 0) start_offset = 0;
+
+        for(int it = start_offset; it<hist_cnt; it++)
+        printf("%s\n", cmd_hist[it]);
 }
 
 bool execute_builtin(struct Command *cmd) {
@@ -87,6 +103,9 @@ bool execute_builtin(struct Command *cmd) {
         return true;
     } else if(strcmp(cmd->args[0], "search")==0) {
         recursive_search(cmd);
+        return true;
+    } else if(strcmp(cmd->args[0], "history")==0) {
+        manage_history(cmd);
         return true;
     }
     return false;

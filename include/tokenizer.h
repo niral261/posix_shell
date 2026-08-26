@@ -18,6 +18,4 @@ struct Command {
 
 int ip_parse(char* r_ip, struct Command commands[]);
 
-int split_semicolon(char *line, char *statements[]);
-
 #endif

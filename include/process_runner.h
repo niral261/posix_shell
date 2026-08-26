@@ -9,4 +9,6 @@ extern pid_t g_running_fg_pid;
 void dispatch_external_cmd(struct Command *cmd);
 void init_signal();
 
+void execute_pipeline(struct Command *cmd, int num_cmd, bool is_it_background);
+
 #endif

@@ -14,8 +14,9 @@ extern char shell_directory_path[PATH_MAX];
 
 void switch_to_correct_path(char *runable_path) {
     size_t root_len = strlen(shell_directory_path);
-    int cmp = strncmp(runable_path, shell_directory_path, root_len);
-    if(cmp) {
+    bool is_inside_shell_directory = strncmp(runable_path, shell_directory_path, root_len) == 0 &&
+        (runable_path[root_len] == '\0' || runable_path[root_len] == '/');
+    if(is_inside_shell_directory) {
         printf("Runnable Path: ~%s\n", runable_path + root_len);
     } else {
         printf("Runnable Path: ~%s\n", runable_path);
@@ -57,8 +58,8 @@ void manage_pinfo(struct Command *cmd) {
     }
 
     char *meta_data = end_with_comma + 2;
-    char stat;
-    int pgr, tpgid;
+    char stat = '?';
+    int pgr = 0, tpgid = 0;
     unsigned long long vsize;
     char* token = strtok(meta_data, " ");
     int index = 3;
@@ -74,7 +75,7 @@ void manage_pinfo(struct Command *cmd) {
 
     bool is_it_foreground = (pgr != tpgid ? false : true);
     printf("Process status: %c%s\n", stat, is_it_foreground ? "+" : "");
-    printf("Memory: %lu {Virtual Memory}\n, vsize");
+        printf("Memory: %llu {Virtual Memory}\n", vsize);
 
     char runnable_path[PATH_MAX];
     char runnable_target[PATH_MAX];

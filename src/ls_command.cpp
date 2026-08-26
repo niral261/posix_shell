@@ -45,6 +45,7 @@ void manage_ls(struct Command *cmd) {
             }
         } else {
             target[target_count] = cmd->args[i];
+            target_count++;
         }
     }
 

@@ -1,5 +1,5 @@
 #ifndef BUILTINS_H
-#define BUILTINT_H
+#define BUILTINS_H
 
 #include "tokenizer.h"
 
