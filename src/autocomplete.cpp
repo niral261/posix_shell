@@ -55,19 +55,22 @@ void search_nested_directory(const char* dir_path, const char* file_prefix,
 
 void tab_completion(char *line_spooler, int *cursor_pos) {
     int typing_word_idx = *cursor_pos;
-    while(typing_word_idx > 0 && line_spooler[typing_word_idx - 1]!=' ') typing_word_idx--;
+    while(typing_word_idx > 0 && line_spooler[typing_word_idx - 1] != ' ' && line_spooler[typing_word_idx - 1] != '\t') {
+        typing_word_idx--;
+    }
 
     bool is_first_word = (typing_word_idx == 0) ? true : false;
 
     char typed_pref[512];
     int pref_len = *cursor_pos - typing_word_idx;
     
+    if (pref_len >= 511) return;
+
     strncpy(typed_pref, &line_spooler[typing_word_idx], pref_len);
     typed_pref[pref_len] = '\0';
 
     int match = 0;
     char* matched_entities[1024];
-    
 
     char search_base_dir[512] = ".";
     char file_prefix[256] = "";
@@ -130,7 +133,7 @@ handle_matches:
         }
 
         if (is_directory(full_path)) {
-            strcpy(&line_spooler[*cursor_pos], "/");
+            line_spooler[*cursor_pos] = '/';
             write(STDOUT_FILENO, "/", 1);
             (*cursor_pos)++;
         } else {
@@ -160,9 +163,7 @@ handle_matches:
             
             *cursor_pos += added_len;
             line_spooler[*cursor_pos] = '\0';
-        } 
-        
-        else {
+        } else {
             write(STDOUT_FILENO, "\n", 1);
             
             for (int i = 0; i < match; i++) {
@@ -170,7 +171,7 @@ handle_matches:
                 if (last_slash != -1) {
                     snprintf(full_path, sizeof(full_path), "%s/%s", search_base_dir, matched_entities[i]);
                 } else {
-                    snprintf(full_path, sizeof(full_path), "%s/%s", search_base_dir, matched_entities[i]);
+                    snprintf(full_path, sizeof(full_path), "./%s", matched_entities[i]);
                 }
                 
                 write(STDOUT_FILENO, matched_entities[i], strlen(matched_entities[i]));

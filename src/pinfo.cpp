@@ -26,10 +26,21 @@ void switch_to_correct_path(char *runable_path) {
 void manage_pinfo(struct Command *cmd) {
     pid_t pid;
 
-    if(cmd->arg_count > 1) {
-        pid = atoi(cmd->args[1]);
-    } else {
+    if(cmd->arg_count > 2) {
+        printf("Invalid arguments\n");
+        return;
+    }
+
+    if(cmd->arg_count == 1) {
         pid = getpid();
+    } else {
+        char *e_ptr;
+        long value = strtol(cmd->args[1], &e_ptr, 10);
+        if(*e_ptr!='\0' || value <= 0) {
+            printf("Invalid PID\n");
+            return;
+        }
+        pid = (pid_t)value;
     }
 
     printf("pid: %d\n", pid);
@@ -45,7 +56,7 @@ void manage_pinfo(struct Command *cmd) {
 
     char spooler[1<<10];
     if(fgets(spooler, sizeof(spooler), meta_file) == NULL) {
-        perror("Error: Can't read the file");
+        perror("Error: Can't read the file\n");
         fclose(meta_file);
         return;
     }
@@ -53,14 +64,16 @@ void manage_pinfo(struct Command *cmd) {
 
     char *end_with_comma = strrchr(spooler, ')');
     if(end_with_comma == NULL) {
-        printf("Error: Parsing a meta file");
+        printf("Error: Parsing a meta file\n");
         return;
     }
 
     char *meta_data = end_with_comma + 2;
     char stat = '?';
+
     int pgr = 0, tpgid = 0;
-    unsigned long long vsize;
+    unsigned long long vsize = 0;
+    
     char* token = strtok(meta_data, " ");
     int index = 3;
 

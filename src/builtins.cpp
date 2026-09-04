@@ -26,7 +26,14 @@ void manage_pwd() {
 
 void manage_echo(struct Command *cmd) {
     for(int i=1;i< cmd->arg_count;i++) {
-        printf("%s", cmd->args[i]);
+        for(int j=0;cmd->args[i][j]!='\0';j++) {
+            if(cmd->args[i][j] == '\\' && cmd->args[i][j+1] == 't') {
+                putchar('\t');
+                j++;
+            } else {
+                putchar(cmd->args[i][j]);
+            }
+        }
         
         if(i < cmd->arg_count-1) 
             printf(" ");
@@ -73,7 +80,22 @@ void manage_cd(struct Command *cmd) {
 void manage_history(struct Command *cmd) {
     int limit = 10;
 
-    if(cmd->arg_count > 1)  limit = atoi(cmd->args[1]);
+    if(cmd->arg_count > 2) {
+        printf("Invalid arguments\n");
+        return;
+    }
+
+    if(cmd->arg_count == 2) {
+        char *end_ptr;
+        long value = strtol(cmd->args[1], &end_ptr, 10);
+
+        if(*end_ptr != '\0' || value <= 0) {
+            printf("Invalid history count\n");
+            return;
+        }
+
+        limit = (int)value;
+    }
 
     if(limit > 20) limit = 20;
 

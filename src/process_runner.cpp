@@ -56,7 +56,7 @@ void init_signal() {
     memset(&sa_child, 0, sizeof(sa_child));
     sa_child.sa_handler = exit_signal_of_child;
     sigemptyset(&sa_child.sa_mask);
-    sa_child.sa_flags = SA_RESTART | SA_NOCLDSTOP;
+    sa_child.sa_flags = SA_NOCLDSTOP;
     sigaction(SIGCHLD, &sa_child, NULL);
 
     // 2. SIGINT (CTRL + C)
@@ -137,19 +137,34 @@ void execute_pipeline(struct Command *cmd, int num_cmd, bool is_it_background) {
                     perror("Input error");
                     exit(1);
                 } 
-                dup2(fd_in, 0);
+                if(dup2(fd_in, 0) < 0 ) {
+                    perror("Input redirection failed");
+                    close(fd_in);exit(1);
+                }
                 close(fd_in);
             } else if(prev_fd_read != -1) {
-                dup2(prev_fd_read, 0);
+                if(dup2(prev_fd_read, 0) < 0) {
+                    perror("Input redirection failed");
+                    exit(1);
+
+                }
             }
 
             if(cmd[i].output_file!=NULL) {
                 int fd_out = open(cmd[i].output_file, O_WRONLY | O_CREAT | (cmd[i].append_mode ? O_APPEND : O_TRUNC), 0644); 
                 if(fd_out<0) {perror("Output error"); exit(1);}
-                dup2(fd_out, 1);
+                
+                if(dup2(fd_out, 1) < 0) {
+                    perror("Output redirection failed");
+                    close(fd_out);
+                    exit(1);
+                }
                 close(fd_out);
             } else if(i+1<num_cmd) {
-                dup2(pipe_fd[1], 1);
+                if(dup2(pipe_fd[1], 1) < 0) {
+                    perror("Output redirection failed");
+                    exit(1);
+                }
             }
 
             if(prev_fd_read!=-1)
