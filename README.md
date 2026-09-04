@@ -439,7 +439,7 @@ This project demonstrates:
 
 ---
 
-## 📞 Support & Debugging
+## 📞 Debugging
 
 For compilation issues:
 1. Ensure all headers are present in `include/` directory
