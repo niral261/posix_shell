@@ -32,11 +32,12 @@ void manage_echo(struct Command *cmd) {
             printf(" ");
     }
     printf("\n");
+    fflush(stdout);
 }
 
 void manage_cd(struct Command *cmd) {
     if(cmd->arg_count > 2) {
-        printf("INvalid arguments");
+        printf("INvalid arguments\n");
         return;
     }
 

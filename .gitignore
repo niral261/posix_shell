@@ -13,5 +13,5 @@
 # Local shell history
 .shell_history
 
-# Local command output
-out.txt
+# Local command .txt
+*.txt

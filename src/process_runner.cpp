@@ -134,7 +134,7 @@ void execute_pipeline(struct Command *cmd, int num_cmd, bool is_it_background) {
             if(cmd[i].input_file!=NULL) {
                 int fd_in = open(cmd[i].input_file, O_RDONLY);
                 if(fd_in < 0) {
-                    perror("Inpur error");
+                    perror("Input error");
                     exit(1);
                 } 
                 dup2(fd_in, 0);
