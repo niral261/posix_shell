@@ -1,2 +1,17 @@
-build/
+# Build output
+/build/
+/obj/
+
+# Compiled binaries
+/shell
+/build/shell
+
+# Generated dependency files
+*.d
 *.o
+
+# Local shell history
+.shell_history
+
+# Local command .txt
+*.txt

@@ -3,8 +3,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <cctype>
+<<<<<<< HEAD
 #include <cerrno>
 #include <csignal>
+=======
+>>>>>>> 1d0817cf6ce6de577538e8101b688a0c2d074130
 #include <termios.h>
 #include <unistd.h>
 #include <linux/limits.h>
@@ -16,8 +19,11 @@
 
 extern char shell_directory_path[PATH_MAX];
 
+<<<<<<< HEAD
 extern volatile sig_atomic_t g_line_interrupted;
 
+=======
+>>>>>>> 1d0817cf6ce6de577538e8101b688a0c2d074130
 int hist_cnt = 0;
 char cmd_hist[MAX_HISTORY][MAX_INPUT_LEN];
 
@@ -40,6 +46,7 @@ char *get_raw_ip() {
     memset(spooler, 0, MAX_INPUT_LEN);
     int pos = 0, hist_idx = hist_cnt;
     char c;
+<<<<<<< HEAD
 
     while (true) {
         ssize_t n = read(0, &c, 1);
@@ -61,6 +68,9 @@ char *get_raw_ip() {
             break;
         }
 
+=======
+    while(read(0,&c,1)==1) {
+>>>>>>> 1d0817cf6ce6de577538e8101b688a0c2d074130
         if(c=='\n') {
             write(1, "\n", 1);
             break;
@@ -84,7 +94,11 @@ char *get_raw_ip() {
         else if(c=='\033') {
             char seq[3];
 
+<<<<<<< HEAD
             if((read(0, &seq[0], 1)<=0) || (read(0, &seq[1], 1)<=0))
+=======
+            if((read(0, &seq[0], 1)==0) || (read(0, &seq[1], 1)==0))
+>>>>>>> 1d0817cf6ce6de577538e8101b688a0c2d074130
                 continue;
 
             if(seq[0]=='[') {
@@ -189,4 +203,8 @@ void add_to_history(char* new_cmd) {
     strcpy(cmd_hist[hist_cnt], new_cmd);
     hist_cnt++;
     save_history();
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 1d0817cf6ce6de577538e8101b688a0c2d074130
