@@ -1,0 +1,135 @@
+// Library Header Files
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+#include <cstdio>
+#include <climits>
+
+// Imported Files
+#include "../include/builtins.h"
+#include "../include/ls_command.h"
+#include "../include/pinfo.h"
+#include "../include/search.h"
+
+
+extern char shell_directory_path[PATH_MAX];
+extern char cmd_hist[20][1024];
+extern int hist_cnt;
+
+static char last_dir[PATH_MAX] = "";
+
+void manage_pwd() {
+    char cwd[PATH_MAX];
+    if(getcwd(cwd, sizeof(cwd))!=NULL) printf("%s\n", cwd);
+    else perror("Error: pwd");
+}
+
+void manage_echo(struct Command *cmd) {
+    for(int i=1;i< cmd->arg_count;i++) {
+        for(int j=0;cmd->args[i][j]!='\0';j++) {
+            if(cmd->args[i][j] == '\\' && cmd->args[i][j+1] == 't') {
+                putchar('\t');
+                j++;
+            } else {
+                putchar(cmd->args[i][j]);
+            }
+        }
+        
+        if(i < cmd->arg_count-1) 
+            printf(" ");
+    }
+    printf("\n");
+    fflush(stdout);
+}
+
+void manage_cd(struct Command *cmd) {
+    if(cmd->arg_count > 2) {
+        printf("INvalid arguments\n");
+        return;
+    }
+
+    char curr_cwd[PATH_MAX];
+    if(getcwd(curr_cwd, sizeof(curr_cwd))==NULL) {
+        perror("cd: getcwd failed");
+        return;
+    }
+
+    const char* target = NULL;
+
+    // Part 1: 'cd-' --- prev directory
+    if(cmd->arg_count==1 || strcmp(cmd->args[1], "~") == 0) {
+        target = shell_directory_path;
+    } else if(strcmp(cmd->args[1], "-")==0) {
+        if(strlen(last_dir)==0) {
+            printf("cd: OLDPWD not set\n");
+            return;
+        }
+        target = last_dir;
+        printf("%s\n", last_dir);
+    } else {
+        target = cmd->args[1];
+    }
+
+    if(chdir(target) != 0) {
+        perror("cd failed");
+    } else {
+        strncpy(last_dir, curr_cwd, sizeof(last_dir));
+    }
+}
+
+void manage_history(struct Command *cmd) {
+    int limit = 10;
+
+    if(cmd->arg_count > 2) {
+        printf("Invalid arguments\n");
+        return;
+    }
+
+    if(cmd->arg_count == 2) {
+        char *end_ptr;
+        long value = strtol(cmd->args[1], &end_ptr, 10);
+
+        if(*end_ptr != '\0' || value <= 0) {
+            printf("Invalid history count\n");
+            return;
+        }
+
+        limit = (int)value;
+    }
+
+    if(limit > 20) limit = 20;
+
+    int start_offset = hist_cnt - limit;
+    if(start_offset < 0) start_offset = 0;
+
+        for(int it = start_offset; it<hist_cnt; it++)
+        printf("%s\n", cmd_hist[it]);
+}
+
+bool execute_builtin(struct Command *cmd) {
+    if(cmd->arg_count == 0 || cmd->args[0] == NULL) return false;
+
+    if(strcmp(cmd->args[0], "cd")==0) {
+        manage_cd(cmd);
+        return true;
+    } else if(strcmp(cmd->args[0], "pwd")==0) {
+        manage_pwd();
+        return true;
+    } else if(strcmp(cmd->args[0], "echo")==0) {
+        manage_echo(cmd);
+        return true;
+    } else if(strcmp(cmd->args[0], "ls")==0) {
+        manage_ls(cmd);
+        return true;
+    } else if(strcmp(cmd->args[0], "pinfo")==0) {
+        manage_pinfo(cmd);
+        return true;
+    } else if(strcmp(cmd->args[0], "search")==0) {
+        recursive_search(cmd);
+        return true;
+    } else if(strcmp(cmd->args[0], "history")==0) {
+        manage_history(cmd);
+        return true;
+    }
+    return false;
+}
